@@ -4,7 +4,7 @@ function header(){
 
     let logo = document.createElement('img');
     logo.className="imagen"
-    logo.src = "https://isenacode.com/wp-content/uploads/2021/12/escribir-logo-apple-d.jpg";
+    logo.src = "https://static-cse.canva.com/blob/951768/1650logotiposqueteinspiraran.png";
     logo.alt = "";
     header.appendChild(logo);
 
