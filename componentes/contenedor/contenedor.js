@@ -16,7 +16,7 @@
 
             let label = document.createElement("label");
             label.innerText = `Cuadro ${i}`;
-            label.className = "texto-cuadro";
+            label.className = "texto-cuadro";l
 
             let cuadroDiv = document.createElement("div");
             cuadroDiv.className = `div-cuadro-${i}`;
