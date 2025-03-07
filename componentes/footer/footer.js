@@ -1,7 +1,10 @@
-function footer(){
-    let footer = document.createElement("footer")
+function footer() {
+    let footer = document.createElement('footer');
     footer.className = "footer";
-    return footer;
 
+
+
+    return footer;
 }
-export {footer};
+
+export { footer };
