@@ -1,72 +1,86 @@
-function contenedor() { 
-    let contenedor = document.createElement("div");
-    contenedor.className = "contenedor";
+async function consultarTareas() {
+  try {
+    const response = await fetch('http://localhost:3000/tareas');
+    if (!response.ok) throw new Error('Error en la solicitud');
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return [];
+  }
+}
 
-    function consultarTareas(){
-        fetch('http://localhost:3000/tareas')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Error en la solicitud');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log(data);
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-    }
-    
-
-    let header = document.createElement("h2");
-    header.innerText = "Personal";
-    header.style.marginBottom = "20px"; 
-
-    let taskList = [
-        "Drink 8 glasses of water",
-        "Meditate for 10 minutes",
-        "Read a chapter of a book",
-        "Go for a 30-minute walk",
-        "Write in a gratitude journal",
-        "Plan meals for the day",
-        "Practice deep breathing exercises",
-        "Stretch for 15 minutes",
-        "Limit screen time before bed"
-    ];
-
-    taskList.forEach(task => {
-        let div = document.createElement("div");
-        div.className = "cuadro";
-
-        let checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.className = "checkbox";
-
-        let label = document.createElement("label");
-        label.innerText = task;
-        label.className = "texto-cuadro";
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        contenedor.appendChild(div);
+async function agregarTarea(nombre) {
+  try {
+    const response = await fetch('http://localhost:3000/tareas', {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre })
     });
+    return await response.json();
+  } catch (error) {
+    console.error("Error:", error);
+   
+  }
+}
 
-    let taskInputDiv = document.createElement("div");
-    taskInputDiv.className = "task-input";
+function crearElemento(tipo, propiedades = {}, ...hijos) {
+  const elemento = document.createElement(tipo);
+  Object.entries(propiedades).forEach(([key, value]) => {
+    elemento[key] = value;
+  });
+  hijos.forEach(hijo => {
+    if (typeof hijo === 'string') {
+      elemento.appendChild(document.createTextNode(hijo));
+    } else {
+      elemento.appendChild(hijo);
+    }
+  });
+  return elemento;
+}
 
-    let input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "Write a task...";
+function cargarTareasDOM(tareas, listado) {
+  listado.innerHTML = "";
+  tareas.forEach(({ nombre }) => {
+    const div = crearElemento("div", { className: "cuadro" },
+      crearElemento("input", { type: "checkbox", className: "checkbox" }),
+      crearElemento("label", { className: "texto-cuadro" }, nombre)
+    );
+    listado.appendChild(div);
+  });
+}
 
-    let button = document.createElement("button");
-    button.innerText = "Add";
+async function inicializarTareas(listado) {
+  const tareas = await consultarTareas();
+  cargarTareasDOM(tareas, listado);
+}
 
-    taskInputDiv.appendChild(input);
-    taskInputDiv.appendChild(button);
-    contenedor.appendChild(taskInputDiv);
+function contenedor() {
+  const contenedor = crearElemento("div", { className: "contenedor" },
+    crearElemento("h2", {}, "Personal"),
+    crearElemento("div", { className: "listado-tareas" }, 
+      crearElemento("div", { className: "task-input" },
+        crearElemento("input", { type: "text", placeholder: "Write a task..." }),
+        crearElemento("button", { innerText: "Add" }, "Add")
+      )
+    )
+  );
 
-    return contenedor;
+  const listado = contenedor.querySelector(".listado-tareas");
+  const input = contenedor.querySelector("input[type='text']");
+  const button = contenedor.querySelector("button");
+
+  button.addEventListener("click", async () => {
+    const nuevaTarea = input.value.trim();
+    if (nuevaTarea) {
+      await agregarTarea(nuevaTarea);
+      await inicializarTareas(listado);
+      input.value = "";
+    }
+  });
+
+  inicializarTareas(listado);
+
+  return contenedor;
 }
 
 export { contenedor };
